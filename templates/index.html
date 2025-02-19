@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mastermind</title>
+    <link rel="icon" type="image/svg+xml" href="./static/icone.svg" />
+    <link rel="stylesheet" href="./static/styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Jeu Mastermind</h1>
+        <p>
+            Mastermind est un jeu de logique où un joueur doit deviner une combinaison secrète de couleurs en un nombre limité d'essais. <br>
+            Après chaque tentative, des indices sont donnés pour aider à trouver la solution. <br>
+            Les couleurs disponibles sont : <font color="red">rouge</font>, <font color="yellow">jaune</font>, <font color="blue">bleu</font>, 
+            <font color="orange">orange</font>, <font color="green">vert</font>, noir, 
+            <font color="purple">violet</font>, <font color="pink">rose</font>.<br>
+            Les indices sont les suivants : pion noir pour un pion bien placé, pion blanc pour un pion présent mais mal placé.<br>
+            Pour jouer, cliquez sur les cercles pour choisir une couleur.
+            Vous avez 10 essais pour trouver la combinaison secrète, bonne chance !
+        </p>
+
+        <div class="guess-container">
+            <form id="gameForm" method="POST">
+                <div id="currentGuess">
+                    {% for i in range(4) %}
+                    <div class="circle" onclick="showColorPicker(this)" data-position="{{ i }}"></div>
+                    <input type="hidden" name="colors[]" required>
+                    {% endfor %}
+                </div>
+                <div id="colorPicker" class="color-picker" style="display: none; position: absolute;">
+                    {% for couleur in couleurs %}
+                    <div class="color-option" 
+                         style="background-color: {{ couleur }}"
+                         onclick="selectColor('{{ couleur }}')"></div>
+                    {% endfor %}
+                </div>
+                <button type="submit">Valider</button>
+            </form>
+        </div>
+
+        <p style="color:red;">{{ message }}</p>
+
+        <h2>Historique des essais :</h2>
+        {% for essai in essais|reverse %}
+        <div class="trial {% if loop.first %}latest-trial{% endif %}">
+            {% for couleur in essai.proposition %}
+            <div class="circle" style="background-color: {{ couleur }}; cursor: default;"></div>
+            {% endfor %}
+            →
+            {% for c in essai.correction %}
+            <div class="correction-circle" style="background-color: {{ 'black' if c == 'O' else 'white' if c == 'X' else 'transparent' }}; border: 1px solid black;"></div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <form method="post" action="/reset">
+            <button class="reset" type="submit">Rejouer</button>
+        </form>
+    </div>
+
+    
+
+    <script>
+        let activeCircle = null;
+        
+        
+        
+        function showColorPicker(circle) {
+            activeCircle = circle;
+            const picker = document.getElementById('colorPicker');
+            picker.style.display = 'block';
+            
+            
+            // Fermeture du sélecteur lors d'un clic ailleurs sur la page
+            document.addEventListener('click', closeColorPicker);
+        }
+
+        function closeColorPicker(event) {
+            const picker = document.getElementById('colorPicker');
+            if (!picker.contains(event.target) && !event.target.classList.contains('circle')) {
+                picker.style.display = 'none';
+                document.removeEventListener('click', closeColorPicker);
+            }
+        }
+
+        function selectColor(color) {
+            if (activeCircle) {
+                activeCircle.style.backgroundColor = color;
+                const position = activeCircle.dataset.position;
+                document.getElementsByName('colors[]')[position].value = color;
+                document.getElementById('colorPicker').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
