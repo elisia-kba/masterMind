@@ -19,7 +19,7 @@ git clone https://github.com/elisia-kba/mastermind.git
 ```
 ### 2. Installer les dépendances :
 ```bash
-pip install flask
+pip install -r requirements.txt
 ```
 
 ### 3. Démarrer l'application :
